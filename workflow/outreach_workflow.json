@@ -1,0 +1,270 @@
+{
+  "name": "linkedin_ai_outreach",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -48
+      ],
+      "id": "e48f08eb-0f07-4f4b-87b9-10d95532ba5b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA",
+          "mode": "list",
+          "cachedResultName": "linkedin_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "message_status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -240,
+        -48
+      ],
+      "id": "3045963b-f845-4911-b8c7-4cf9b6ea5e70",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nLrvC0UNfaSv4gH0",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyDlXXtbhwzJthlV7bwJyVGMoO5ht0YNKVc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"contents\": [\n  {\n   \"parts\": [\n    {\n     \"text\": \"Write a short personalized LinkedIn outreach message (max 60 words). Lead info: Name {{$json.name}}, Role {{$json.role}}, Company {{$json.company}}, Pain point {{$json.pain_point}}. Tone: friendly and professional. End with a short question.\"\n    }\n   ]\n  }\n ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -32,
+        -48
+      ],
+      "id": "bde2d484-60e0-46ac-b478-225690f78f66",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA",
+          "mode": "list",
+          "cachedResultName": "linkedin_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MEoC5wNW2shLN42bSPFhlsXy6EZEpLxNxQl517cTaEA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{$node[\"Get row(s) in sheet\"].json[\"name\"]}}",
+            "company": "={{$node[\"Get row(s) in sheet\"].json[\"company\"]}}",
+            "role": "={{$node[\"Get row(s) in sheet\"].json[\"role\"]}}",
+            "linkedin_url": "={{$node[\"Get row(s) in sheet\"].json[\"linkedin_url\"]}}",
+            "pain_point": "={{$node[\"Get row(s) in sheet\"].json[\"pain_point\"]}}",
+            "message_status": "sent",
+            "ai_message": "={{$json[\"candidates\"][0][\"content\"][\"parts\"][0][\"text\"]}}",
+            "generated_at": "={{$now}}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pain_point",
+              "displayName": "pain_point",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_status",
+              "displayName": "message_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_message",
+              "displayName": "ai_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "generated_at",
+              "displayName": "generated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "73004dc2-1229-4e72-b102-5a2f0e414eec",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nLrvC0UNfaSv4gH0",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bcbc3f65-d2d1-4541-b860-ff1fc4f76328",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9518e8a386bef4f662b3f9202d8fc6839abd8f60494b81318dad9380ab03c877"
+  },
+  "id": "6CMxdqhr8QhVgIrf",
+  "tags": []
+}
