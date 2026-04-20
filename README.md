@@ -1,3 +1,5 @@
+> Focused on the message generation step only. See [ai-cold-email-automation] for the full send pipeline.
+
 # AI Outreach Message Generator (n8n + Gemini)
 
 ## Overview
